@@ -352,3 +352,6 @@ print(np.sum(ang_weights))
 RhosHystory, TotalHystory = main(sequence, rhop0, (Nx, Ny, Nz, Nang), (lx_grid, ly_grid, lz_grid), b2_over_6, dx, u_vectors, ang_weights, epsilon_hb, vchi_pp, alpha_pb, 0.5, 0.0)
 with open("data.json", "w") as f:
     json.dump({"dict1": RhosHystory, "dict2": TotalHystory}, f, indent=4)
+
+def prova():
+    print(f'Ciao')
