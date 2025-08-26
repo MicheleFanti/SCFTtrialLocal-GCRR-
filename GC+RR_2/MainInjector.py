@@ -227,8 +227,10 @@ def main(sequence, rhop0, gridshape, box_lengths, b2_over_6, dx, u_vectors, ang_
 
     current_alpha_pb = 0.0
     current_vchi_pp = 0.0
-    max_iter = 150
+    max_iter = 500
     tol = 1e-4
+    DeltaRhoHystory = []
+    PartialsHystory = {k: [0] * max_iter for k in rho0_per_class}
     for it in range(max_iter):
         
         for res_name in residue_classes:
@@ -280,15 +282,14 @@ def main(sequence, rhop0, gridshape, box_lengths, b2_over_6, dx, u_vectors, ang_
                 mean_rho = np.sum(rho_class[c_key] * spat_weights)
                 print(f'Current {c_key} total {mean_rho}')
             total_current_rho += mean_rho
-
             # residual per-class
             res_vecs[c_key] = mean_rho - rho0_per_class[c_key]
-            diff = abs(res_vecs[c_key])
-            if diff > max_diff:
-                max_diff = diff
+            PartialsHystory[c_key][it] = res_vecs[c_key]
+            if np.abs(res_vecs[c_key]) > max_diff:
+                max_diff = res_vecs[c_key]
 
         total_diff = total_current_rho - rhop0
-
+        DeltaRhoHystory.append(total_diff)
         # residuals as arrays
         res_eta = np.array([total_diff])  # scalar constraint
         res_mu  = np.array([res_vecs[c] for c in rho0_per_class if c in mu])  # vector constraint
@@ -321,6 +322,7 @@ def main(sequence, rhop0, gridshape, box_lengths, b2_over_6, dx, u_vectors, ang_
 
         print(f"Iter {it+1}: Max per-class diff={max_diff:.5g}, Total diff={total_diff:.5g}")
         print(f"Current alpha_pb: {current_alpha_pb:.3f}, Current vchi_pp: {current_vchi_pp:.3f}\n")
+    return PartialsHystory, DeltaRhoHystory
 
 # ----------------------------------
 # Parameters and Launch
