@@ -1,4 +1,10 @@
-import numpy as np
+try:
+    import cupy as np   # xp will point to CuPy
+    _ = np.zeros(1)     # test that CUDA works
+    use_gpu = True
+except Exception:
+    import numpy as np  # xp will point to NumPy
+    use_gpu = False
 import sys
 
 from scipy.integrate import lebedev_rule

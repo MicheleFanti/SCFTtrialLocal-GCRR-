@@ -222,10 +222,13 @@ def main(sequence, rhop0, gridshape, box_lengths, b2_over_6, dx, u_vectors, ang_
 
     current_alpha_pb = 0.0
     current_vchi_pp = 0.0
-    max_iter = 150
+    max_iter = 500
     tol = 1e-4
+    DeltaRhoHystory = []
+    PartialsHystory = {k: [0] * max_iter for k in rho0_per_class}
+    for key in PartialsHystory:
+        PartialsHystory[key] = 0
     for it in range(max_iter):
-        
         for res_name in residue_classes:
             print(f'{res_name}; {rho_class[res_name].shape}')
         print(f"\nIteration {it + 1}")
@@ -275,14 +278,17 @@ def main(sequence, rhop0, gridshape, box_lengths, b2_over_6, dx, u_vectors, ang_
                 print(f'Current {c_key} total {mean_rho}')
             total_current_rho += mean_rho
             diff = abs(mean_rho - rho0_per_class[c_key])
+            PartialsHystory[c_key].append(diff)
             if diff > max_diff:
                 max_diff = diff
         
         total_diff = total_current_rho - rhop0
+        DeltaRhoHystory.append(total_diff)
         print(f"Iter {it+1}: Max per-class diff={max_diff:.5g}, Total diff={total_diff:.5g}")
         print(f"Current alpha_pb: {current_alpha_pb:.3f}, Current vchi_pp: {current_vchi_pp:.3f}")
         print(f"")
 
+    return DeltaRhoHystory, PartialsHystory
 # ----------------------------------
 # Parameters and Launch
 # ----------------------------------
@@ -307,5 +313,5 @@ ang_weights /= np.sum(ang_weights)
 u_vectors = u_vectors / np.linalg.norm(u_vectors, axis=1)[:, None]
 print(np.sum(ang_weights))
 
-main(sequence, rhop0, (Nx, Ny, Nz, Nang), (lx_grid, ly_grid, lz_grid), b2_over_6, dx, u_vectors, ang_weights, epsilon_hb, vchi_pp, alpha_pb, 0.05, 0.05)
+_, _ = main(sequence, rhop0, (Nx, Ny, Nz, Nang), (lx_grid, ly_grid, lz_grid), b2_over_6, dx, u_vectors, ang_weights, epsilon_hb, vchi_pp, alpha_pb, 0.05, 0.05)
 
