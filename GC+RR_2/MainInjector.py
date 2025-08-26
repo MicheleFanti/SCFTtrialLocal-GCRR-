@@ -6,6 +6,7 @@ except Exception:
     import numpy as np  # xp will point to NumPy
     use_gpu = False
 import sys
+import json
 
 from scipy.integrate import lebedev_rule
 
@@ -348,5 +349,6 @@ ang_weights /= np.sum(ang_weights)
 u_vectors = u_vectors / np.linalg.norm(u_vectors, axis=1)[:, None]
 print(np.sum(ang_weights))
 
-main(sequence, rhop0, (Nx, Ny, Nz, Nang), (lx_grid, ly_grid, lz_grid), b2_over_6, dx, u_vectors, ang_weights, epsilon_hb, vchi_pp, alpha_pb, 0.5, 0.0)
-
+RhosHystory, TotalHystory = main(sequence, rhop0, (Nx, Ny, Nz, Nang), (lx_grid, ly_grid, lz_grid), b2_over_6, dx, u_vectors, ang_weights, epsilon_hb, vchi_pp, alpha_pb, 0.5, 0.0)
+with open("data.json", "w") as f:
+    json.dump({"dict1": RhosHystory, "dict2": TotalHystory}, f, indent=4)
